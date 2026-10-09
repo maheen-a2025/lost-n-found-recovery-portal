@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIT Campus Lost & Found Recovery Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+    <header class="bg-indigo-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wide">VIT Lost & Found Recovery Portal</h1>
+            <button onclick="openModal('report-modal')" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-semibold transition shadow">+ Report Item</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Filter Bar -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex gap-2">
+                <button onclick="filterType('All')" id="btn-All" class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700">All</button>
+                <button onclick="filterType('Lost')" id="btn-Lost" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-600">Lost</button>
+                <button onclick="filterType('Found')" id="btn-Found" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-600">Found</button>
+            </div>
+            <div class="flex gap-3 flex-wrap">
+                <select id="filter-category" onchange="loadItems()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                    <option value="">All Categories</option>
+                    <option value="ID Cards">ID Cards</option>
+                    <option value="Room Keys">Room Keys</option>
+                    <option value="Calculators">Calculators</option>
+                    <option value="Lab Equipment">Lab Equipment</option>
+                    <option value="Earphones">Earphones</option>
+                    <option value="Wallets">Wallets</option>
+                </select>
+                <select id="filter-venue" onchange="loadItems()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                    <option value="">All Venues</option>
+                    <optgroup label="Academic Blocks">
+                        <option value="SJT">SJT</option><option value="TT">TT</option><option value="PRP">PRP</option>
+                        <option value="SMV">SMV</option><option value="MB">MB</option><option value="GDN">GDN</option><option value="CDMM">CDMM</option>
+                    </optgroup>
+                    <optgroup label="Hostels & Amenities">
+                        <option value="Central Library">Central Library</option>
+                        <option value="Sports Complex">Sports Complex</option>
+                        <option value="Gazebo Food Court">Gazebo Food Court</option>
+                        <option value="Food Mall">Food Mall</option>
+                        <option value="DC Food Court">DC Food Court</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+
+        <!-- Items Feed -->
+        <div id="items-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic Cards Loaded Here -->
+        </div>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-lg font-bold mb-4">Report Lost or Found Item</h2>
+            <form id="report-form" onsubmit="submitItem(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500">Listing Type</label>
+                    <select name="type" class="w-full border border-slate-300 rounded-lg p-2 mt-1">
+                        <option value="Lost">Lost</option>
+                        <option value="Found">Found</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500">Item Title</label>
+                    <input type="text" name="title" required placeholder="e.g., Casio fx-991ES Calculator" class="w-full border border-slate-300 rounded-lg p-2 mt-1">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500">Category</label>
+                        <select name="category" class="w-full border border-slate-300 rounded-lg p-2 mt-1">
+                            <option value="ID Cards">ID Cards</option>
+                            <option value="Room Keys">Room Keys</option>
+                            <option value="Calculators">Calculators</option>
+                            <option value="Lab Equipment">Lab Equipment</option>
+                            <option value="Earphones">Earphones</option>
+                            <option value="Wallets">Wallets</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-500">Venue</label>
+                        <select name="venue" class="w-full border border-slate-300 rounded-lg p-2 mt-1">
+                            <option value="SJT">SJT</option><option value="TT">TT</option><option value="PRP">PRP</option>
+                            <option value="SMV">SMV</option><option value="MB">MB</option><option value="GDN">GDN</option><option value="CDMM">CDMM</option>
+                            <option value="Central Library">Central Library</option><option value="Sports Complex">Sports Complex</option>
+                            <option value="Gazebo Food Court">Gazebo Food Court</option><option value="Food Mall">Food Mall</option><option value="DC Food Court">DC Food Court</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500">Description</label>
+                    <textarea name="description" rows="2" placeholder="Brand, color, specific markings..." class="w-full border border-slate-300 rounded-lg p-2 mt-1"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-500">Verification Challenge Question (Private Check)</label>
+                    <input type="text" name="challenge" required placeholder="e.g., What name or branch is printed on the ID tag?" class="w-full border border-slate-300 rounded-lg p-2 mt-1">
+                </div>
+                <div class="border-t pt-3">
+                    <p class="text-xs text-indigo-600 font-medium mb-2">Finder contact details are masked publicly for privacy.</p>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <input type="text" name="finderName" placeholder="Your Name" required class="border border-slate-300 rounded-lg p-2 text-sm">
+                        <input type="text" name="finderRegNo" placeholder="Registration No." required class="border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="email" name="finderEmail" placeholder="Email (Optional)" class="border border-slate-300 rounded-lg p-2 text-sm">
+                        <input type="text" name="finderPhone" placeholder="Phone (Optional)" class="border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('report-modal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold">Post Listing</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Claim Modal -->
+    <div id="claim-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <h2 class="text-lg font-bold mb-2">Claim Verification Request</h2>
+            <p id="challenge-text" class="text-sm text-slate-600 mb-4 font-medium bg-slate-100 p-3 rounded-lg"></p>
+            <form id="claim-form" onsubmit="submitClaim(event)" class="space-y-4">
+                <input type="hidden" id="claim-item-id">
+                <input type="text" id="claimantName" placeholder="Your Name" required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                <input type="text" id="claimantRegNo" placeholder="Your Registration No." required class="w-full border border-slate-300 rounded-lg p-2 text-sm">
+                <textarea id="claimAnswer" rows="2" placeholder="Your Answer to Challenge Question" required class="w-full border border-slate-300 rounded-lg p-2 text-sm"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('claim-modal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold">Submit Claim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Finder Claims Dashboard & Messaging Modal -->
+    <div id="dashboard-modal" class="fixed inset-0 bg-slate-900/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 class="text-lg font-bold text-slate-900">Finder Claims & Handoff Hub</h2>
+                <button onclick="closeModal('dashboard-modal')" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <div id="dashboard-content" class="space-y-6">
+                <!-- Loaded Dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTypeFilter = 'All';
+        let activeItemId = null;
+
+        document.addEventListener('DOMContentLoaded', loadItems);
+
+        function filterType(type) {
+            currentTypeFilter = type;
+            ['All', 'Lost', 'Found'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === type) {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700";
+                } else {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-600";
+                }
+            });
+            loadItems();
+        }
+
+        async function loadItems() {
+            const category = document.getElementById('filter-category').value;
+            const venue = document.getElementById('filter-venue').value;
+            let url = `/api/items?type=${currentTypeFilter}`;
+            if (category) url += `&category=${category}`;
+            if (venue) url += `&venue=${venue}`;
+
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">Loading active campus items...</div>`;
+
+            try {
+                const res = await fetch(url);
+                const items = await res.json();
+
+                if (items.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No active items found matching criteria.</div>`;
+                    return;
+                }
+
+                grid.innerHTML = items.map(item => `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${item.type === 'Lost' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">${item.type}</span>
+                                <span class="text-xs text-slate-500 font-medium">${item.venue}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-lg mb-1">${item.title}</h3>
+                            <p class="text-xs text-indigo-600 font-semibold mb-2">${item.category}</p>
+                            <p class="text-sm text-slate-600 mb-4">${item.description || 'No additional description provided.'}</p>
+                            <p class="text-xs text-slate-400 mb-4">Posted by: <span class="italic">Masked Student (${item.finderName.charAt(0)}***)</span></p>
+                        </div>
+                        <div class="border-t pt-4 flex gap-2">
+                            <button onclick="openClaimModal(${item.id}, '${item.challenge.replace(/'/g, "\\'")}')" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg text-sm transition">Claim Item</button>
+                            <button onclick="openDashboard(${item.id})" class="px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 rounded-lg text-sm transition" title="Finder Claims & Chat">🔒 Dashboard</button>
+                            <button onclick="resolveItem(${item.id})" class="px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2 rounded-lg text-sm transition" title="Mark Resolved">✔</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-500">Failed to load items. Check server connection.</div>`;
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        async function submitItem(e) {
+            e.preventDefault();
+            const formData = Object.fromEntries(new FormData(e.target));
+            const res = await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            if (res.ok) {
+                closeModal('report-modal');
+                e.target.reset();
+                loadItems();
+            } else {
+                alert('Error submitting item.');
+            }
+        }
+
+        function openClaimModal(id, challenge) {
+            activeItemId = id;
+            document.getElementById('challenge-text').innerText = `Challenge: "${challenge}"`;
+            openModal('claim-modal');
+        }
+
+        async function submitClaim(e) {
+            e.preventDefault();
+            const payload = {
+                itemId: activeItemId,
+                claimantName: document.getElementById('claimantName').value,
+                claimantRegNo: document.getElementById('claimantRegNo').value,
+                answer: document.getElementById('claimAnswer').value
+            };
+            const res = await fetch('/api/claims', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                alert('Claim verification request submitted securely!');
+                closeModal('claim-modal');
+                e.target.reset();
+            }
+        }
+
+        async function openDashboard(itemId) {
+            activeItemId = itemId;
+            openModal('dashboard-modal');
+            const container = document.getElementById('dashboard-content');
+            container.innerHTML = `<p class="text-sm text-slate-400">Loading claims and meetup threads...</p>`;
+
+            const [claimsRes, msgRes] = await Promise.all([
+                fetch(`/api/items/${itemId}/claims`),
+                fetch(`/api/items/${itemId}/messages`)
+            ]);
+            const claims = await claimsRes.json();
+            const messages = await msgRes.json();
+
+            let html = `<div><h3 class="font-bold text-sm text-slate-700 mb-2">Submitted Ownership Claims</h3>`;
+            if (claims.length === 0) {
+                html += `<p class="text-xs text-slate-400">No claims submitted yet.</p>`;
+            } else {
+                html += claims.map(c => `
+                    <div class="border border-slate-200 p-3 rounded-lg mb-2 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold">${c.claimantName} (${c.claimantRegNo})</p>
+                            <p class="text-xs text-slate-600 mt-1">Answer: "${c.answer}"</p>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-semibold ${c.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : c.status === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">${c.status}</span>
+                        </div>
+                        ${c.status === 'Pending' ? `
+                            <div class="flex gap-1">
+                                <button onclick="updateClaim(${c.id}, 'Approved')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs font-semibold">Approve</button>
+                                <button onclick="updateClaim(${c.id}, 'Rejected')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1 rounded text-xs font-semibold">Reject</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+            html += `</div>`;
+
+            html += `<div class="border-t pt-4"><h3 class="font-bold text-sm text-slate-700 mb-2">Safe In-App Handoff Coordination Thread</h3>
+                <p class="text-xs text-slate-500 mb-3">Coordinate a physical meetup checkpoint (e.g., SJT Ground Floor Reception or Central Library Security Desk).</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 h-40 overflow-y-auto mb-3 space-y-2">`;
+            
+            if (messages.length === 0) {
+                html += `<p class="text-xs text-slate-400 text-center py-10">No messages in thread yet.</p>`;
+            } else {
+                html += messages.map(m => `
+                    <div class="text-xs"><span class="font-bold text-indigo-900">${m.sender}:</span> ${m.text} <span class="text-[9px] text-slate-400 float-right">${m.timestamp}</span></div>
+                `).join('');
+            }
+            html += `</div>
+                <form onsubmit="sendMessage(event)" class="flex gap-2">
+                    <input type="text" id="msgSender" placeholder="Your Alias/Role" required class="w-1/3 border border-slate-300 rounded-lg p-2 text-xs">
+                    <input type="text" id="msgText" placeholder="Type meetup coordination message..." required class="flex-1 border border-slate-300 rounded-lg p-2 text-xs">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-semibold">Send</button>
+                </form>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        async function updateClaim(claimId, status) {
+            await fetch(`/api/claims/${claimId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            openDashboard(activeItemId);
+        }
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const payload = {
+                sender: document.getElementById('msgSender').value,
+                text: document.getElementById('msgText').value
+            };
+            await fetch(`/api/items/${activeItemId}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            openDashboard(activeItemId);
+        }
+
+        async function resolveItem(id) {
+            if (confirm('Mark this item as resolved/returned? It will be removed from the active board.')) {
+                await fetch(`/api/items/${id}/resolve`, { method: 'POST' });
+                loadItems();
+            }
+        }
+    </script>
+</body>
+</html>
